@@ -4,15 +4,15 @@ const taskController = require('../controllers/taskController');
 const router = express.Router();
 
 // Create Task
-router.post('/create', auth, taskController.createTask);
+router.post('/tasks', auth, taskController.createTask);
 
 // Fetch tasks with filters for status, priority, due_date, and search by title or description.
-router.get('/read', auth, taskController.getTasks);
+router.get('/tasks', auth, taskController.getTasks);
 
 // Update Task
-router.put('/update/:id', auth, taskController.updateTask);
+router.put('/tasks/:id', auth, taskController.updateTask);
 
 // Delete Task
-router.delete('/delete/:id', auth, taskController.deleteTask);
+router.delete('/tasks/:id', auth, taskController.deleteTask);
 
 module.exports = router;

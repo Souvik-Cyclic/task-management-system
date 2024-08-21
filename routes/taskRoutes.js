@@ -6,7 +6,7 @@ const router = express.Router();
 // Create Task
 router.post('/create', auth, taskController.createTask);
 
-// Get Task (Read Task)
+// Fetch tasks with filters for status, priority, due_date, and search by title or description.
 router.get('/read', auth, taskController.getTasks);
 
 // Update Task

@@ -1,20 +1,43 @@
 const Task = require('../models/Task');
+const { Op } = require('sequelize');
 
 // Create Task
 exports.createTask = async (req, res) => {
     try {
         const { title, description, status, priority, due_date } = req.body;
-        const task = await Task.create({ title, description, status, priority, due_date, userId: req.user.id });
+        const task = await Task.create(
+            { title, description, status, priority, due_date, userId: req.user.id }
+        );
         res.status(201).json(task);
     } catch (error) {
         res.status(500).json({ message: "Error creating task", error });
     }
 };
 
-// Get Task (Read Task)
+// Fetch tasks with filters for status, priority, due_date, and search by title or description.
 exports.getTasks = async (req, res) => {
     try {
-        const tasks = await Task.findAll({ where: { userId: req.user.id } });
+        const { status, priority, due_date, search } = req.query;
+
+        const whereClause = { userId: req.user.id };
+
+        if(status){
+            whereClause.status = status;
+        }
+        if(priority){
+            whereClause.priority = priority;
+        }
+        if(due_date){
+            whereClause.due_date = due_date;
+        }
+        if(search){
+            whereClause[Op.or] = [
+                { title: { [Op.iLike]: `%${search}%` } },
+                { description: { [Op.iLike]: `%${search}%` } }
+            ];
+        }
+
+        const tasks = await Task.findAll({ where: whereClause });
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ message: "Error retrieving tasks", error });

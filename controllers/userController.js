@@ -6,6 +6,15 @@ const User = require('../models/userModel');
 exports.register = async (req, res) => {
     const { username, password, role } = req.body;
 
+    // convert to lowercase
+    let convertedRole;
+    if(role){
+        convertedRole = role.toLowerCase();
+    }
+    else{
+        convertedRole = 'user';
+    }
+    
     // Check if user already exists
     try {
         const userExists = await User.findOne({ where: { username } });
@@ -18,7 +27,7 @@ exports.register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create user
-        const user = await User.create({ username, password: hashedPassword, role });
+        const user = await User.create({ username, password: hashedPassword, role: convertedRole });
 
         res.send({ userId: user.id });
     } catch (error) {

@@ -1,10 +1,22 @@
 const Task = require('../models/taskModel');
 const { Op } = require('sequelize');
 
+const validStatuses = ['Todo', 'In Progress', 'Done'];
+const validPriorities = ['Low', 'Medium', 'High'];
+
 // Create Task
 exports.createTask = async (req, res) => {
     try {
         const { title, description, status, priority, due_date } = req.body;
+
+        // Validate status & priority
+        if(status && !validStatuses.includes(status)){
+            return res.status(400).json({ message: "Invalid status" });
+        }
+        if(priority && !validPriorities.includes(priority)){
+            return res.status(400).json({ message: "Invalid priority" });
+        }
+
         const task = await Task.create(
             { title, description, status, priority, due_date, userId: req.user.id }
         );
@@ -18,6 +30,14 @@ exports.createTask = async (req, res) => {
 exports.getTasks = async (req, res) => {
     try {
         const { status, priority, due_date, search } = req.query;
+
+        // Validate status & priority
+        if(status && !validStatuses.includes(status)){
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+        if(priority && !validPriorities.includes(priority)){
+            return res.status(400).json({ message: "Invalid priority value" });
+        }
 
         const whereClause = { userId: req.user.id };
 
@@ -48,6 +68,15 @@ exports.getTasks = async (req, res) => {
 exports.updateTask = async (req, res) => {
     try {
         const { title, description, status, priority, due_date } = req.body;
+
+        // Validate status & priority
+        if(status && !validStatuses.includes(status)){
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+        if(priority && !validPriorities.includes(priority)){
+            return res.status(400).json({ message: "Invalid priority value" });
+        }
+
         const [updated] = await Task.update(
             { title, description, status, priority, due_date }, 
             { where: { id: req.params.id, userId: req.user.id } }

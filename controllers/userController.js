@@ -70,3 +70,21 @@ exports.getAllUsers = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// Delete a user (admin only)
+exports.deleteUser = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.findByPk(id);
+        if(!user){
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await user.destroy();
+        res.status(200).json({ message: "User deleted" });
+    } catch (error){
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

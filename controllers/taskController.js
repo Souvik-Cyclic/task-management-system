@@ -113,3 +113,59 @@ exports.deleteTask = async (req, res) => {
         res.status(500).json({ message: "Error deleting task", error });
     }
 };
+
+// Admin Only Routes
+// Fetch all tasks (admin only)
+exports.getAllTasks = async (req, res) => {
+    try {
+        const tasks = await Task.findAll();
+        res.status(200).json(tasks);
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving tasks", error });
+    }
+};
+
+// Fetch all tasks assigned to a user (admin only)
+exports.getTasksByUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+
+        const tasks = await Task.findAll({ where: { userId : id } });
+
+        if (tasks.length === 0) {
+            return res.status(404).json({ message: "No tasks found for this user" });
+        }
+
+        res.status(200).json(tasks);
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving tasks", error });
+    }
+};
+
+// Assign a task to a user (admin only)
+exports.assignTask = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userId } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+
+        const task = await Task.findByPk(id);
+        if (!task) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+        task.userId = userId;
+        await task.save();
+
+        res.status(200).json({ message: "Task successfully assigned", task });
+    } catch (error) {
+        res.status(500).json({ message: "Error assigning task", error });
+    }
+}

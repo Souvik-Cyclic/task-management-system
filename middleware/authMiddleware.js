@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/userModel')
 
-module.exports = (req, res, next) => {
+module.exports = (adminRequired = false) => async (req, res, next) => {
     const authHeader = req.header('Authorization');
 
     if(!authHeader){
@@ -12,6 +13,12 @@ module.exports = (req, res, next) => {
     try{
         const verified = jwt.verify(token, process.env.JWT_SECRET);
         req.user = verified;
+
+        const user = await User.findByPk(verified.id);
+        if(adminRequired && user.role !== 'admin'){
+            return res.status(403).json({ message: "Access Denied: Not an admin" });
+        }
+
         next();
     } catch(err){
         return res.status(401).json({ message: "Invalid token" });

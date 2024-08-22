@@ -48,7 +48,13 @@ exports.getTasks = async (req, res) => {
             whereClause.priority = priority;
         }
         if(due_date){
-            whereClause.due_date = due_date;
+            const dateStart = new Date(due_date);
+            const dateEnd = new Date(due_date);
+            dateEnd.setDate(dateEnd.getDate() + 1);
+        
+            whereClause.due_date = {
+                [Op.between]: [dateStart, dateEnd]
+            };
         }
         if(search){
             whereClause[Op.or] = [

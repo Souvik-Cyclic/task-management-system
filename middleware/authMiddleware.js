@@ -15,6 +15,10 @@ module.exports = (adminRequired = false) => async (req, res, next) => {
         req.user = verified;
 
         const user = await User.findByPk(verified.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        req.user.role = user.role;
         if(adminRequired && user.role !== 'admin'){
             return res.status(403).json({ message: "Access Denied: Not an admin" });
         }

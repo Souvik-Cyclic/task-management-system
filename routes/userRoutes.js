@@ -22,4 +22,7 @@ router.put('/users/:id', authMiddleware(true), userController.updateUser);
 // Delete a user (admin only)
 router.delete('/users/:id', authMiddleware(true), userController.deleteUser);
 
+// Change user password (admin & user themselves only)
+router.put('/users/:id/password', authMiddleware(), userController.changeUserPassword);
+
 module.exports = router;

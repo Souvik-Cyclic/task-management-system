@@ -91,3 +91,5 @@ docker compose up
 - `PUT /api/tasks/:id/assign`: Assign a task to a user (requires authentication)
 
 Note: All endpoints except `/register` and `/login` require a valid JWT token in the Authorization header.
+
+API Documentation : [Link](https://documenter.getpostman.com/view/36544059/2sAXjDevcF)

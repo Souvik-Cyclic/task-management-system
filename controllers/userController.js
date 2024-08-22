@@ -60,6 +60,35 @@ exports.login = async (req, res) => {
     }
 };
 
+// Change user password (admin & user themselves only)
+exports.changeUserPassword = async (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
+    const requesterId = req.user.id;
+
+    if (requesterId !== parseInt(id) && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access Denied: You are not authorized to change this password' });
+    }
+
+    try {
+        const user = await User.findByPk(id);
+        if(!user){
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password updated' });
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // Admin Only Routes
 // Fetch all users (admin only)
 exports.getAllUsers = async (req, res) => {
@@ -129,34 +158,5 @@ exports.deleteUser = async (req, res) => {
     } catch (error){
         console.error('Error deleting user:', error);
         res.status(500).json({ message: "Server error" });
-    }
-};
-
-// Change user password (admin only)
-exports.changeUserPassword = async (req, res) => {
-    const { id } = req.params;
-    const { password } = req.body;
-    const requesterId = req.user.id;
-
-    if (requesterId !== parseInt(id) && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access Denied: You are not authorized to change this password' });
-    }
-
-    try {
-        const user = await User.findByPk(id);
-        if(!user){
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        user.password = hashedPassword;
-        await user.save();
-
-        res.status(200).json({ message: 'Password updated' });
-    } catch (error) {
-        console.error('Error changing password:', error);
-        res.status(500).json({ message: 'Server error' });
     }
 };
